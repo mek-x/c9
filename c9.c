@@ -1059,6 +1059,7 @@ s9proc(C9ctx *c)
 			c->error("s9proc");
 			return err;
 		}
+		c->t(c, &t);
 		break;
 
 	case Tcreate:
