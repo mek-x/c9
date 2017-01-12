@@ -114,11 +114,15 @@ newtag(C9ctx *c, C9ttype type, C9tag *tag)
 
 	for(i = 0; i < (int)sizeof(c->tags)/sizeof(c->tags[0]); i++){
 		uint32_t x, j;
-		for(j = 0, x = c->tags[i]; (x & 1) != 0 && j < C9tagbits; j++);
-		if(j < C9tagbits){
-			c->tags[i] &= ~(1<<j);
-			*tag = i*C9tagbits + j;
-			return 0;
+		if((x = c->tags[i]) == 0)
+			continue;
+		for(j = 0; j < C9tagbits; j++){
+			if((x & (1<<j)) != 0){
+				c->tags[i] &= ~(1<<j);
+				*tag = i*C9tagbits + j;
+				c->lowfreetag = *tag + 1;
+				return 0;
+			}
 		}
 	}
 

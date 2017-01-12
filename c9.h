@@ -285,7 +285,7 @@ struct C9ctx
 	void (*t)(C9ctx *ctx, C9t *t) __attribute__((nonnull(1, 2)));
 
 	/* Callback for error messages. */
-	void (*error)(const char *fmt, ...) __attribute__((nonnull(1)));;
+	void (*error)(const char *fmt, ...) __attribute__((nonnull(1)));
 
 	/* Auxiliary data, can be used by any of above callbacks. */
 	void *aux;
