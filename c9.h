@@ -46,6 +46,9 @@ enum C9perm
 	C9permox = 1<<0,
 };
 
+/* Directory. */
+#define C9permdir 0x80000000
+
 /* Bitmask of stat.mode. */
 #define C9stdir 0x80000000
 #define C9stappend 0x40000000
