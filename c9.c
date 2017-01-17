@@ -104,7 +104,7 @@ newtag(C9ctx *c, C9ttype type, C9tag *tag)
 	}
 
 	if(c->lowfreetag < C9maxtags){
-		uint32_t d = c->lowfreetag / C9tagbits, m = c->lowfreetag % C9tagbits;
+		uint32_t d = c->lowfreetag / C9tagsbits, m = c->lowfreetag % C9tagsbits;
 		if((c->tags[d] & 1<<m) != 0){
 			c->tags[d] &= ~(1<<m);
 			*tag = c->lowfreetag++;
@@ -116,10 +116,10 @@ newtag(C9ctx *c, C9ttype type, C9tag *tag)
 		uint32_t x, j;
 		if((x = c->tags[i]) == 0)
 			continue;
-		for(j = 0; j < C9tagbits; j++){
+		for(j = 0; j < C9tagsbits; j++){
 			if((x & (1<<j)) != 0){
 				c->tags[i] &= ~(1<<j);
-				*tag = i*C9tagbits + j;
+				*tag = i*C9tagsbits + j;
 				c->lowfreetag = *tag + 1;
 				return 0;
 			}
@@ -134,7 +134,7 @@ static int
 freetag(C9ctx *c, C9tag tag)
 {
 	if(tag != 0xffff){
-		uint32_t d = tag / C9tagbits, m = tag % C9tagbits;
+		uint32_t d = tag / C9tagsbits, m = tag % C9tagsbits;
 		if(tag >= C9maxtags){
 			c->error("freetag: invalid tag");
 			return -1;

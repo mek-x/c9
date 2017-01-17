@@ -9,7 +9,7 @@ typedef enum C9rtype C9rtype;
 typedef enum C9ttype C9ttype;
 typedef enum C9qt C9qt;
 typedef uint32_t C9fid;
-typedef uint32_t C9tag;
+typedef uint16_t C9tag;
 
 /* Stat field is not changed if it's set to this value when calling c9wstat. */
 #define C9nochange (~0)
@@ -256,7 +256,7 @@ struct C9t
 
 enum
 {
-	C9tagbits = sizeof(uint32_t) * 8,
+	C9tagsbits = sizeof(uint32_t) * 8,
 };
 
 struct C9ctx
@@ -292,8 +292,8 @@ struct C9ctx
 
 	/* private stuff */
 	uint32_t msize;
-	uint32_t tags[C9maxtags/C9tagbits];
 	uint32_t flush[C9maxflush];
+	uint32_t tags[C9maxtags/C9tagsbits];
 	union
 	{
 		C9tag lowfreetag;
