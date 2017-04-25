@@ -1121,7 +1121,7 @@ s9proc(C9ctx *c)
 		if(cnt > sz)
 			goto error;
 		memmove(b-1, b, cnt);
-		t.attach.aname = (char*)b;
+		t.attach.aname = (char*)b-1;
 		t.attach.aname[cnt] = 0;
 		c->t(c, &t);
 		break;
@@ -1142,7 +1142,7 @@ s9proc(C9ctx *c)
 		if(cnt > sz)
 			goto error;
 		memmove(b-1, b, cnt);
-		t.auth.aname = (char*)b;
+		t.auth.aname = (char*)b-1;
 		t.auth.aname[cnt] = 0;
 		c->t(c, &t);
 		break;
