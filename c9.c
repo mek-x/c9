@@ -368,7 +368,7 @@ c9open(C9ctx *c, C9tag *tag, C9fid fid, C9mode mode)
 C9error
 c9create(C9ctx *c, C9tag *tag, C9fid fid, const char *name, uint32_t perm, C9mode mode)
 {
-	uint32_t nlen = safestrlen(name);
+	uint32_t nlen = strlen(name);
 	uint8_t *b;
 	C9error err;
 
@@ -588,6 +588,7 @@ c9proc(C9ctx *c)
 				break;
 			}
 		}
+		/* fallthrough */
 	case Rclunk:
 	case Rremove:
 	case Rwstat:
