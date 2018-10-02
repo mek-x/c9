@@ -1074,6 +1074,7 @@ s9proc(C9ctx *c)
 		if((cnt = r16(&b)) < 1 || cnt > sz-4-2-4-1)
 			goto error;
 		t.create.name = (char*)b;
+		b += cnt;
 		t.create.perm = r32(&b);
 		t.create.mode = r08(&b);
 		t.create.name[cnt] = 0;
