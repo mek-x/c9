@@ -1,3 +1,5 @@
+struct C9aux;
+
 typedef struct C9r C9r;
 typedef struct C9t C9t;
 typedef struct C9stat C9stat;
@@ -291,7 +293,7 @@ struct C9ctx
 	void (*error)(const char *fmt, ...) __attribute__((nonnull(1)));
 
 	/* Auxiliary data, can be used by any of above callbacks. */
-	void *aux;
+	struct C9aux *aux;
 
 	/* private stuff */
 	uint32_t msize;
