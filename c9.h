@@ -336,11 +336,11 @@ extern C9error s9auth(C9ctx *c, C9tag tag, const C9qid *aqid) __attribute__((non
 extern C9error s9error(C9ctx *c, C9tag tag, const char *err) __attribute__((nonnull(1)));
 extern C9error s9attach(C9ctx *c, C9tag tag, const C9qid *qid) __attribute__((nonnull(1, 3)));
 extern C9error s9flush(C9ctx *c, C9tag tag) __attribute__((nonnull(1)));
-extern C9error s9walk(C9ctx *c, C9tag tag, const C9qid *qids[]) __attribute__((nonnull(1, 3)));
+extern C9error s9walk(C9ctx *c, C9tag tag, C9qid *qids[]) __attribute__((nonnull(1, 3)));
 extern C9error s9open(C9ctx *c, C9tag tag, const C9qid *qid, uint32_t iounit) __attribute__((nonnull(1, 3)));
 extern C9error s9create(C9ctx *c, C9tag tag, const C9qid *qid, uint32_t iounit) __attribute__((nonnull(1, 3)));
 extern C9error s9read(C9ctx *c, C9tag tag, const void *data, uint32_t size) __attribute__((nonnull(1, 3)));
-extern C9error s9readdir(C9ctx *c, C9tag tag, const C9stat *st[], int *num, uint64_t *offset, uint32_t size) __attribute__((nonnull(1, 3, 4)));
+extern C9error s9readdir(C9ctx *c, C9tag tag, C9stat *st[], int *num, uint64_t *offset, uint32_t size) __attribute__((nonnull(1, 3, 4)));
 extern C9error s9write(C9ctx *c, C9tag tag, uint32_t size) __attribute__((nonnull(1)));
 extern C9error s9clunk(C9ctx *c, C9tag tag) __attribute__((nonnull(1)));
 extern C9error s9remove(C9ctx *c, C9tag tag) __attribute__((nonnull(1)));

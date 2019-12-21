@@ -721,7 +721,7 @@ s9flush(C9ctx *c, C9tag tag)
 }
 
 C9error
-s9walk(C9ctx *c, C9tag tag, const C9qid *qids[])
+s9walk(C9ctx *c, C9tag tag, C9qid *qids[])
 {
 	uint32_t i, n;
 	uint8_t *b;
@@ -805,7 +805,7 @@ s9write(C9ctx *c, C9tag tag, uint32_t size)
 }
 
 C9error
-s9readdir(C9ctx *c, C9tag tag, const C9stat *st[], int *num, uint64_t *offset, uint32_t size)
+s9readdir(C9ctx *c, C9tag tag, C9stat *st[], int *num, uint64_t *offset, uint32_t size)
 {
 	uint8_t *b;
 	const C9stat *s;
