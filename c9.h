@@ -5,11 +5,6 @@ typedef struct C9t C9t;
 typedef struct C9stat C9stat;
 typedef struct C9ctx C9ctx;
 typedef struct C9qid C9qid;
-typedef enum C9error C9error;
-typedef enum C9mode C9mode;
-typedef enum C9rtype C9rtype;
-typedef enum C9ttype C9ttype;
-typedef enum C9qt C9qt;
 typedef uint32_t C9fid;
 typedef uint16_t C9tag;
 
@@ -20,7 +15,7 @@ typedef uint16_t C9tag;
 #define C9nofid ((C9fid)~0)
 
 /* C9modes for opening a file. */
-enum C9mode
+typedef enum
 {
 	C9read = 0,
 	C9write = 1,
@@ -28,9 +23,9 @@ enum C9mode
 	C9exec = 3,
 	C9trunc = 0x10,
 	C9rclose = 0x40,
-};
+}C9mode;
 
-enum C9perm
+typedef enum
 {
 	/* User/owner. */
 	C9permur = 1<<8, /* Readable. */
@@ -46,7 +41,7 @@ enum C9perm
 	C9permor = 1<<2,
 	C9permow = 1<<1,
 	C9permox = 1<<0,
-};
+}C9perm;
 
 /* Directory. */
 #define C9permdir 0x80000000
@@ -68,7 +63,7 @@ enum
 };
 
 /* Errors. */
-enum C9error
+typedef enum
 {
 	C9Einit = -1,  /* Initialization failed. */
 	C9Ever = -2,   /* Protocol version doesn't match. */
@@ -79,10 +74,10 @@ enum C9error
 	C9Eflush = -7, /* Limit of outstanding flushes reached. */
 	C9Esize = -8,  /* Can't fit data in one message. */
 	C9Estr = -9    /* Bad string. */
-};
+}C9error;
 
 /* Request types. */
-enum C9ttype
+typedef enum
 {
 	Tversion = 100,
 	Tauth = 102,
@@ -97,10 +92,10 @@ enum C9ttype
 	Tremove = 122,
 	Tstat = 124,
 	Twstat = 126
-};
+}C9ttype;
 
 /* Response types. */
-enum C9rtype
+typedef enum
 {
 	Rversion = 101,
 	Rauth = 103,
@@ -116,10 +111,10 @@ enum C9rtype
 	Rremove = 123,
 	Rstat = 125,
 	Rwstat = 127
-};
+}C9rtype;
 
 /* Unique file id type. */
-enum C9qt
+typedef enum
 {
 	C9qtdir = 1<<7,
 	C9qtappend = 1<<6,
@@ -127,7 +122,7 @@ enum C9qt
 	C9qtauth = 1<<3,
 	C9qttmp = 1<<2,
 	C9qtfile = 0
-};
+}C9qt;
 
 /* Unique file id. */
 struct C9qid

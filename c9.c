@@ -5,8 +5,8 @@
  * any sense to copy-paste protocol documentation, which
  * you can read at http://man.cat-v.org/plan_9/5/, see 'intro'.
  */
-#include <string.h>
 #include <stdint.h>
+#include <string.h>
 #include "c9.h"
 
 enum
