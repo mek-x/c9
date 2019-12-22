@@ -138,11 +138,11 @@ freetag(C9ctx *c, C9tag tag)
 	if(tag != 0xffff){
 		uint32_t d = tag / C9tagsbits, m = tag % C9tagsbits;
 		if(tag >= C9maxtags){
-			c->error("freetag: invalid tag");
+			c->error("freetag: invalid tag %u", (uint32_t)tag);
 			return -1;
 		}
 		if((c->tags[d] & 1<<m) != 0){
-			c->error("freetag: double free");
+			c->error("freetag: double free for tag %u", (uint32_t)tag);
 			return -1;
 		}
 		if(c->lowfreetag > tag)
@@ -158,12 +158,12 @@ T(C9ctx *c, uint32_t size, C9ttype type, C9tag *tag, C9error *err)
 	uint8_t *p = NULL;
 
 	if(size > c->msize-4-1-2){
-		c->error("T: invalid size");
+		c->error("T: invalid size %u", size);
 		*err = C9Esize;
 	}else if((*err = newtag(c, type, tag)) == 0){
 		size += 4+1+2;
 		if((p = c->begin(c, size)) == NULL){
-			c->error("T: no buffer");
+			c->error("T: no buffer for %u bytes", size);
 			freetag(c, *tag);
 			*err = C9Ebuf;
 		}else{
@@ -183,7 +183,7 @@ c9version(C9ctx *c, C9tag *tag, uint32_t msize)
 	C9error err;
 
 	if(msize < C9minmsize){
-		c->error("c9version: msize too small");
+		c->error("c9version: msize too small: %u", msize);
 		return C9Einit;
 	}
 	memset(c->tags, 0xff, sizeof(c->tags));
@@ -207,7 +207,7 @@ c9auth(C9ctx *c, C9tag *tag, C9fid afid, const char *uname, const char *aname)
 	C9error err;
 
 	if(ulen > C9maxstr || alen > C9maxstr){
-		c->error("c9auth: string too long");
+		c->error("c9auth: string too long: %u chars", ulen > alen ? ulen : alen);
 		return C9Estr;
 	}
 	if((b = T(c, 4+2+ulen+2+alen, Tauth, tag, &err)) != NULL){
@@ -248,7 +248,7 @@ c9attach(C9ctx *c, C9tag *tag, C9fid fid, C9fid afid, const char *uname, const c
 	C9error err;
 
 	if(ulen > C9maxstr || alen > C9maxstr){
-		c->error("c9attach: string too long");
+		c->error("c9attach: string too long: %u chars", ulen > alen ? ulen : alen);
 		return C9Estr;
 	}
 	if((b = T(c, 4+4+2+ulen+2+alen, Tattach, tag, &err)) != NULL){
@@ -272,13 +272,13 @@ c9walk(C9ctx *c, C9tag *tag, C9fid fid, C9fid newfid, const char *path[])
 	for(sz = i = 0; i < (int)sizeof(len)/sizeof(len[0]) && path[i] != NULL; i++){
 		len[i] = safestrlen(path[i]);
 		if(len[i] == 0 || len[i] > C9maxstr){
-			c->error("c9walk: path element too long");
+			c->error("c9walk: invalid path element: %u chars", len[i]);
 			return C9Epath;
 		}
 		sz += 2 + len[i];
 	}
 	if(path[i] != NULL || i == 0){
-		c->error("c9walk: invalid elements !(0 < %d <= %d)", i, C9maxpathel);
+		c->error("c9walk: invalid elements !(0 < %u <= %u)", i, C9maxpathel);
 		return C9Epath;
 	}
 
@@ -315,7 +315,7 @@ c9create(C9ctx *c, C9tag *tag, C9fid fid, const char *name, uint32_t perm, C9mod
 	C9error err;
 
 	if(nlen == 0 || nlen > C9maxstr){
-		c->error("c9create: invalid name");
+		c->error("c9create: invalid name: %u chars", nlen);
 		return C9Epath;
 	}
 	if((b = T(c, 4+2+nlen+4+1, Tcreate, tag, &err)) != NULL){
@@ -413,11 +413,11 @@ c9wstat(C9ctx *c, C9tag *tag, C9fid fid, const C9stat *s)
 	C9error err;
 
 	if(nlen == 0 || nlen > C9maxstr){
-		c->error("c9wstat: invalid name");
+		c->error("c9wstat: invalid name: %u chars", nlen);
 		return C9Epath;
 	}
 	if(ulen > C9maxstr || glen > C9maxstr){
-		c->error("c9wstat: string too long");
+		c->error("c9wstat: string too long: %u chars", ulen > glen ? ulen : glen);
 		return C9Estr;
 	}
 	if((b = T(c, 4+2+2+statsz, Twstat, tag, &err)) != NULL){
@@ -471,7 +471,7 @@ c9proc(C9ctx *c)
 	r.tag = r16(&b);
 	if(r.type != Rversion){
 		if(r.tag >= C9maxtags){
-			c->error("c9proc: invalid tag 0x%x", r.tag);
+			c->error("c9proc: invalid tag %u", (uint32_t)r.tag);
 			return C9Epkt;
 		}
 		if(freetag(c, r.tag) != 0)
@@ -500,7 +500,7 @@ c9proc(C9ctx *c)
 		if(sz < 2+13 || (cnt = r16(&b))*13 > sz-2)
 			goto error;
 		if(cnt > C9maxpathel){
-			c->error("c9proc: Rwalk !(%d <= %d)", cnt, C9maxpathel);
+			c->error("c9proc: Rwalk !(%u <= %u)", cnt, C9maxpathel);
 			return C9Epath;
 		}
 		for(i = 0; i < cnt; i++){
@@ -514,10 +514,8 @@ c9proc(C9ctx *c)
 
 	case Rstat:
 		b += 2; sz -= 2;
-		if((err = c9parsedir(c, &r.stat, &b, &sz)) != 0){
-			c->error("c9proc");
+		if((err = c9parsedir(c, &r.stat, &b, &sz)) != 0)
 			return err;
-		}
 		r.numqid = 1;
 		c->r(c, &r);
 		break;
@@ -585,7 +583,7 @@ c9proc(C9ctx *c)
 	}
 	return 0;
 error:
-	c->error("c9proc: invalid packet (type=%d)", r.type);
+	c->error("c9proc: invalid packet type %u", r.type);
 	return C9Epkt;
 }
 
@@ -597,6 +595,7 @@ c9parsedir(C9ctx *c, C9stat *stat, uint8_t **t, uint32_t *size)
 	uint8_t *b;
 	uint32_t cnt, sz;
 
+	sz = 0;
 	if(*size < 49 || (sz = r16(t)) < 47 || *size < 2+sz)
 		goto error;
 	*size -= 2+sz;
@@ -624,7 +623,7 @@ c9parsedir(C9ctx *c, C9stat *stat, uint8_t **t, uint32_t *size)
 	*t += sz;
 	return 0;
 error:
-	c->error("c9parsedir: invalid size");
+	c->error("c9parsedir: invalid size: size=%u sz=%u", *size, sz);
 	return C9Epkt;
 }
 
@@ -636,12 +635,12 @@ R(C9ctx *c, uint32_t size, C9rtype type, C9tag tag, C9error *err)
 	uint8_t *p = NULL;
 
 	if(size > c->msize-4-1-2){
-		c->error("R: invalid size");
+		c->error("R: invalid size %u", size);
 		*err = C9Esize;
 	}else{
 		size += 4+1+2;
 		if((p = c->begin(c, size)) == NULL){
-			c->error("R: no buffer");
+			c->error("R: no buffer for %u bytes", size);
 			*err = C9Ebuf;
 		}else{
 			*err = 0;
@@ -690,7 +689,7 @@ s9error(C9ctx *c, C9tag tag, const char *ename)
 	C9error err;
 
 	if(len > C9maxstr){
-		c->error("s9error: invalid ename");
+		c->error("s9error: invalid ename: %u chars", len);
 		return C9Estr;
 	}
 	if((b = R(c, 2+len, Rerror, tag, &err)) != NULL){
@@ -735,7 +734,7 @@ s9walk(C9ctx *c, C9tag tag, C9qid *qids[])
 
 	for(n = 0; n < C9maxpathel && qids[n] != NULL; n++);
 	if(n > C9maxpathel){
-		c->error("s9walk: invalid elements !(0 <= %d <= %d)", n, C9maxpathel);
+		c->error("s9walk: invalid elements !(0 <= %u <= %u)", n, C9maxpathel);
 		return C9Epath;
 	}
 
@@ -831,11 +830,13 @@ s9readdir(C9ctx *c, C9tag tag, C9stat *st[], int *num, uint64_t *offset, uint32_
 		mulen = safestrlen(s->muid);
 
 		if(nlen == 0 || nlen > C9maxstr){
-			c->error("s9readdir: invalid name");
+			c->error("s9readdir: invalid name: %u chars", nlen);
 			return C9Epath;
 		}
 		if(ulen > C9maxstr || glen > C9maxstr || mulen > C9maxstr){
-			c->error("s9readdir: string too long");
+			ulen = ulen > glen ? ulen : glen;
+			ulen = ulen > mulen ? ulen : mulen;
+			c->error("s9readdir: string too long: %u chars", ulen);
 			return C9Estr;
 		}
 
@@ -908,11 +909,13 @@ s9stat(C9ctx *c, C9tag tag, const C9stat *s)
 	C9error err;
 
 	if(nlen == 0 || nlen > C9maxstr){
-		c->error("s9stat: invalid name");
+		c->error("s9stat: invalid name: %u chars", nlen);
 		return C9Epath;
 	}
 	if(ulen > C9maxstr || glen > C9maxstr || mulen > C9maxstr){
-		c->error("s9stat: string too long");
+		ulen = ulen > glen ? ulen : glen;
+		ulen = ulen > mulen ? ulen : mulen;
+		c->error("s9stat: string too long: %u chars", ulen);
 		return C9Estr;
 	}
 
@@ -982,7 +985,7 @@ s9proc(C9ctx *c)
 	sz -= 3;
 
 	if((c->svflags & Svver) == 0 && t.type != Tversion){
-		c->error("s9proc: expected Tversion, got %d", t.type);
+		c->error("s9proc: expected Tversion, got %u", t.type);
 		return C9Epkt;
 	}
 
@@ -1026,7 +1029,7 @@ s9proc(C9ctx *c)
 		t.fid = r32(&b);
 		t.walk.newfid = r32(&b);
 		if((n = r16(&b)) > 16){
-			c->error("s9proc: Twalk !(%d <= 16)", n);
+			c->error("s9proc: Twalk !(%u <= 16)", n);
 			return C9Epath;
 		}
 		sz -= 4+4+2;
@@ -1035,7 +1038,7 @@ s9proc(C9ctx *c)
 				if(sz < 2 || (cnt = r16(&b)) > sz-2)
 					goto error;
 				if(cnt < 1){
-					c->error("s9proc: Twalk invalid element [%d]", i);
+					c->error("s9proc: Twalk invalid element [%u]", i);
 					return C9Epath;
 				}
 				b[-2] = 0;
@@ -1160,7 +1163,7 @@ s9proc(C9ctx *c)
 	}
 	return 0;
 error:
-	c->error("s9proc: invalid packet (type=%d)", t.type);
+	c->error("s9proc: invalid packet (type=%u)", t.type);
 	return C9Epkt;
 }
 
