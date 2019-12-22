@@ -93,6 +93,8 @@ r64(uint8_t **p)
 	return r32(p) | (uint64_t)r32(p)<<32;
 }
 
+#ifndef C9_NO_CLIENT
+
 static C9error
 newtag(C9ctx *c, C9ttype type, C9tag *tag)
 {
@@ -172,66 +174,6 @@ T(C9ctx *c, uint32_t size, C9ttype type, C9tag *tag, C9error *err)
 		}
 	}
 	return p;
-}
-
-static uint8_t *
-R(C9ctx *c, uint32_t size, C9rtype type, C9tag tag, C9error *err)
-{
-	uint8_t *p = NULL;
-
-	if(size > c->msize-4-1-2){
-		c->error("R: invalid size");
-		*err = C9Esize;
-	}else{
-		size += 4+1+2;
-		if((p = c->begin(c, size)) == NULL){
-			c->error("R: no buffer");
-			*err = C9Ebuf;
-		}else{
-			*err = 0;
-			w32(&p, size);
-			w08(&p, type);
-			w16(&p, tag);
-		}
-	}
-	return p;
-}
-
-C9error
-c9parsedir(C9ctx *c, C9stat *stat, uint8_t **t, uint32_t *size)
-{
-	uint8_t *b;
-	uint32_t cnt, sz;
-
-	if(*size < 49 || (sz = r16(t)) < 47 || *size < 2+sz)
-		goto error;
-	*size -= 2+sz;
-	*t += 6; /* skip type(2) and dev(4) */
-	stat->qid.type = r08(t);
-	stat->qid.version = r32(t);
-	stat->qid.path = r64(t);
-	stat->mode = r32(t);
-	stat->atime = r32(t);
-	stat->mtime = r32(t);
-	stat->size = r64(t);
-	sz -= 39;
-	if((cnt = r16(t)) > sz-2)
-		goto error;
-	stat->name = (char*)*t; b = *t = *t+cnt; sz -= 2+cnt;
-	if(sz < 2 || (cnt = r16(t)) > sz-2)
-		goto error;
-	stat->uid = (char*)*t; *b = 0; b = *t = *t+cnt; sz -= 2+cnt;
-	if(sz < 2 || (cnt = r16(t)) > sz-2)
-		goto error;
-	stat->gid = (char*)*t; *b = 0; b = *t = *t+cnt; sz -= 2+cnt;
-	if(sz < 2 || (cnt = r16(t)) > sz-2)
-		goto error;
-	stat->muid = memmove(*t-1, *t, cnt); *b = stat->muid[cnt] = 0; *t = *t+cnt; sz -= 2+cnt;
-	*t += sz;
-	return 0;
-error:
-	c->error("c9parsedir: invalid size");
-	return C9Epkt;
 }
 
 C9error
@@ -645,6 +587,70 @@ c9proc(C9ctx *c)
 error:
 	c->error("c9proc: invalid packet (type=%d)", r.type);
 	return C9Epkt;
+}
+
+#endif /* C9_NO_CLIENT */
+
+C9error
+c9parsedir(C9ctx *c, C9stat *stat, uint8_t **t, uint32_t *size)
+{
+	uint8_t *b;
+	uint32_t cnt, sz;
+
+	if(*size < 49 || (sz = r16(t)) < 47 || *size < 2+sz)
+		goto error;
+	*size -= 2+sz;
+	*t += 6; /* skip type(2) and dev(4) */
+	stat->qid.type = r08(t);
+	stat->qid.version = r32(t);
+	stat->qid.path = r64(t);
+	stat->mode = r32(t);
+	stat->atime = r32(t);
+	stat->mtime = r32(t);
+	stat->size = r64(t);
+	sz -= 39;
+	if((cnt = r16(t)) > sz-2)
+		goto error;
+	stat->name = (char*)*t; b = *t = *t+cnt; sz -= 2+cnt;
+	if(sz < 2 || (cnt = r16(t)) > sz-2)
+		goto error;
+	stat->uid = (char*)*t; *b = 0; b = *t = *t+cnt; sz -= 2+cnt;
+	if(sz < 2 || (cnt = r16(t)) > sz-2)
+		goto error;
+	stat->gid = (char*)*t; *b = 0; b = *t = *t+cnt; sz -= 2+cnt;
+	if(sz < 2 || (cnt = r16(t)) > sz-2)
+		goto error;
+	stat->muid = memmove(*t-1, *t, cnt); *b = stat->muid[cnt] = 0; *t = *t+cnt; sz -= 2+cnt;
+	*t += sz;
+	return 0;
+error:
+	c->error("c9parsedir: invalid size");
+	return C9Epkt;
+}
+
+#ifndef C9_NO_SERVER
+
+static uint8_t *
+R(C9ctx *c, uint32_t size, C9rtype type, C9tag tag, C9error *err)
+{
+	uint8_t *p = NULL;
+
+	if(size > c->msize-4-1-2){
+		c->error("R: invalid size");
+		*err = C9Esize;
+	}else{
+		size += 4+1+2;
+		if((p = c->begin(c, size)) == NULL){
+			c->error("R: no buffer");
+			*err = C9Ebuf;
+		}else{
+			*err = 0;
+			w32(&p, size);
+			w08(&p, type);
+			w16(&p, tag);
+		}
+	}
+	return p;
 }
 
 C9error
@@ -1157,3 +1163,5 @@ error:
 	c->error("s9proc: invalid packet (type=%d)", t.type);
 	return C9Epkt;
 }
+
+#endif /* C9_NO_SERVER */

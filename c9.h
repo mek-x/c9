@@ -297,8 +297,10 @@ struct C9ctx
 
 	/* private stuff */
 	uint32_t msize;
+#ifndef C9_NO_CLIENT
 	uint32_t flush[C9maxflush];
 	uint32_t tags[C9maxtags/C9tagsbits];
+#endif
 	union
 	{
 		C9tag lowfreetag;
@@ -308,6 +310,8 @@ struct C9ctx
 
 /* Parse one directory entry. */
 extern C9error c9parsedir(C9ctx *c, C9stat *stat, uint8_t **data, uint32_t *size) __attribute__((nonnull(1, 2, 3)));
+
+#ifndef C9_NO_CLIENT
 
 extern C9error c9version(C9ctx *c, C9tag *tag, uint32_t msize) __attribute__((nonnull(1, 2)));
 extern C9error c9auth(C9ctx *c, C9tag *tag, C9fid afid, const char *uname, const char *aname) __attribute__((nonnull(1, 2)));
@@ -331,6 +335,10 @@ extern C9error c9wstat(C9ctx *c, C9tag *tag, C9fid fid, const C9stat *s) __attri
  */
 extern C9error c9proc(C9ctx *c) __attribute__((nonnull(1)));
 
+#endif /* C9_NO_CLIENT */
+
+#ifndef C9_NO_SERVER
+
 extern C9error s9version(C9ctx *c) __attribute__((nonnull(1)));
 extern C9error s9auth(C9ctx *c, C9tag tag, const C9qid *aqid) __attribute__((nonnull(1, 3)));
 extern C9error s9error(C9ctx *c, C9tag tag, const char *err) __attribute__((nonnull(1)));
@@ -348,3 +356,5 @@ extern C9error s9stat(C9ctx *c, C9tag tag, const C9stat *s) __attribute__((nonnu
 extern C9error s9wstat(C9ctx *c, C9tag tag) __attribute__((nonnull(1)));
 
 extern C9error s9proc(C9ctx *c) __attribute__((nonnull(1)));
+
+#endif /* C9_NO_SERVER */
