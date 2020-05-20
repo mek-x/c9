@@ -277,8 +277,8 @@ c9walk(C9ctx *c, C9tag *tag, C9fid fid, C9fid newfid, const char *path[])
 		}
 		sz += 2 + len[i];
 	}
-	if(path[i] != NULL || i == 0){
-		c->error("c9walk: invalid elements !(0 < %u <= %u)", i, C9maxpathel);
+	if(path[i] != NULL){
+		c->error("c9walk: invalid elements !(0 <= %u <= %u)", i, C9maxpathel);
 		return C9Epath;
 	}
 
@@ -497,7 +497,7 @@ c9proc(C9ctx *c)
 		break;
 
 	case Rwalk:
-		if(sz < 2+13 || (cnt = r16(&b))*13 > sz-2)
+		if(sz < 2 || (cnt = r16(&b))*13 > sz-2)
 			goto error;
 		if(cnt > C9maxpathel){
 			c->error("c9proc: Rwalk !(%u <= %u)", cnt, C9maxpathel);
