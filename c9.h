@@ -1,3 +1,12 @@
+#ifdef __plan9__
+typedef u64int uint64_t;
+typedef u32int uint32_t;
+typedef u16int uint16_t;
+typedef u8int uint8_t;
+#define __attribute__(...)
+#define NULL nil
+#endif
+
 struct C9aux;
 
 typedef struct C9r C9r;

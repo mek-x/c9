@@ -5,8 +5,13 @@
  * any sense to copy-paste protocol documentation, which
  * you can read at http://man.cat-v.org/plan_9/5/, see 'intro'.
  */
+#ifdef __plan9__
+#include <u.h>
+#include <libc.h>
+#else
 #include <stdint.h>
 #include <string.h>
+#endif
 #include "c9.h"
 
 enum
@@ -717,10 +722,9 @@ s9attach(C9ctx *c, C9tag tag, const C9qid *qid)
 C9error
 s9flush(C9ctx *c, C9tag tag)
 {
-	uint8_t *b;
 	C9error err;
 
-	if((b = R(c, 0, Rflush, tag, &err)) != NULL)
+	if(R(c, 0, Rflush, tag, &err) != NULL)
 		err = c->end(c);
 	return err;
 }
@@ -880,10 +884,9 @@ s9readdir(C9ctx *c, C9tag tag, C9stat *st[], int *num, uint64_t *offset, uint32_
 C9error
 s9clunk(C9ctx *c, C9tag tag)
 {
-	uint8_t *b;
 	C9error err;
 
-	if((b = R(c, 0, Rclunk, tag, &err)) != NULL)
+	if(R(c, 0, Rclunk, tag, &err) != NULL)
 		err = c->end(c);
 	return err;
 }
@@ -891,10 +894,9 @@ s9clunk(C9ctx *c, C9tag tag)
 C9error
 s9remove(C9ctx *c, C9tag tag)
 {
-	uint8_t *b;
 	C9error err;
 
-	if((b = R(c, 0, Rremove, tag, &err)) != NULL)
+	if(R(c, 0, Rremove, tag, &err) != NULL)
 		err = c->end(c);
 	return err;
 }
@@ -943,10 +945,9 @@ s9stat(C9ctx *c, C9tag tag, const C9stat *s)
 C9error
 s9wstat(C9ctx *c, C9tag tag)
 {
-	uint8_t *b;
 	C9error err;
 
-	if((b = R(c, 0, Rwstat, tag, &err)) != NULL)
+	if(R(c, 0, Rwstat, tag, &err) != NULL)
 		err = c->end(c);
 	return err;
 }
