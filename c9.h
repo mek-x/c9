@@ -32,6 +32,7 @@ typedef enum
 	C9exec = 3,
 	C9trunc = 0x10,
 	C9rclose = 0x40,
+	C9excl = 0x1000,
 }C9mode;
 
 typedef enum
