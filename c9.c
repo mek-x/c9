@@ -83,19 +83,24 @@ static uint16_t
 r16(uint8_t **p)
 {
 	*p += 2;
-	return (uint16_t)(*p)[-2]<<0 | (uint16_t)(*p)[-1]<<8;
+	return (*p)[-2]<<0 | (*p)[-1]<<8;
 }
 
 static uint32_t
 r32(uint8_t **p)
 {
-	return r16(p) | (uint32_t)r16(p)<<16;
+	*p += 4;
+	return (*p)[-4]<<0 | (*p)[-3]<<8 | (*p)[-2]<<16 | (*p)[-1]<<24;
 }
 
 static uint64_t
 r64(uint8_t **p)
 {
-	return r32(p) | (uint64_t)r32(p)<<32;
+	uint64_t v;
+
+	v = r32(p);
+	v |= (uint64_t)r32(p)<<32;
+	return v;
 }
 
 #ifndef C9_NO_CLIENT
