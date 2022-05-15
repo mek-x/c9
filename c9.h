@@ -151,12 +151,12 @@ struct C9qid
  */
 struct C9stat
 {
+	C9qid qid;   /* Same as qid[0]. */
 	uint64_t size; /* Size of the file (in bytes). */
 	char *name;  /* Name of the file. */
 	char *uid;   /* Owner of the file. */
 	char *gid;   /* Group of the file. */
 	char *muid;  /* The user who modified the file last. */
-	C9qid qid;   /* Same as qid[0]. */
 	uint32_t mode;   /* Permissions. See C9st* and C9perm. */
 	uint32_t atime;  /* Last access time. */
 	uint32_t mtime;  /* Last modification time. */
